@@ -70,6 +70,26 @@ def graficar_trayectoria(t=0):
     st.pyplot(plt.gcf())
     plt.clf()
 
+def graficar_distancia():
+    t_vals = np.linspace(0, 365, 1000)
+    d_vals = d_t_func(t_vals)
+    t_min = t_vals[np.argmin(d_vals)]
+    d_min = np.min(d_vals)
+    t_max = t_vals[np.argmax(d_vals)]
+    d_max = np.max(d_vals)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(t_vals, d_vals, label='Distancia d(t)', color='blue')
+    plt.scatter([t_min], [d_min], color='red', label=f'Mínimo en t={t_min:.2f}, d={d_min:.2f}')
+    plt.scatter([t_max], [d_max], color='green', label=f'Máximo en t={t_max:.2f}, d={d_max:.2f}')
+    plt.title('Función de distancia d(t) entre P y S')
+    plt.xlabel('Tiempo t (días)')
+    plt.ylabel('Distancia d(t)')
+    plt.grid(True)
+    plt.legend()
+    st.pyplot(plt.gcf())
+    plt.clf()
+
 # Función para calcular la distancia actual entre P y S
 def calcular_distancia_actual(t):
     return d_t_func(t)
@@ -84,3 +104,6 @@ graficar_trayectoria(t)
 # Calculamos la distancia actual y la mostramos como métrica
 distancia_actual = calcular_distancia_actual(t)
 st.metric(label="Distancia d(t) entre P y S", value=f"{distancia_actual:.2f} unidades")
+
+if st.button("Mostrar gráfico de distancia d(t) entre P y S"):
+    graficar_distancia()
