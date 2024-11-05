@@ -1,7 +1,8 @@
 import streamlit as st
 import numpy as np
-import sympy as sp
 import matplotlib.pyplot as plt
+import sympy as sp
+from scipy.optimize import minimize_scalar
 
 # Parámetros de la elipse y de la circunferencia
 a = 2000  # Semieje mayor de la elipse
@@ -9,55 +10,50 @@ b = 1200  # Semieje menor de la elipse
 r = 300   # Radio de la circunferencia
 S_x, S_y = -1600, 0  # Coordenadas del punto S
 
-# Definimos la variable simbólica para el tiempo
-t_sym = sp.symbols('t')
+# Definimos las funciones de las coordenadas de T
+def x_t(t):
+    return a * np.cos((2 * np.pi * t / 365) + (np.pi / 2))
 
-# Definimos las funciones de las coordenadas de T en forma simbólica
-x_t_sym = a * sp.cos((2 * np.pi * t_sym / 365) + (np.pi / 2))
-y_t_sym = b * sp.sin((2 * np.pi * t_sym / 365) + (np.pi / 2))
+def y_t(t):
+    return b * np.sin((2 * np.pi * t / 365) + (np.pi / 2))
 
-# Coordenadas de P en función de t
-p_x_sym = x_t_sym + r * sp.cos(2 * np.pi * t_sym)
-p_y_sym = y_t_sym + r * sp.sin(2 * np.pi * t_sym)
+# Funciones de las coordenadas de P
+def p_x(t):
+    return x_t(t) + r * np.cos(2 * np.pi * t)
 
-# Función simbólica de distancia entre P(t) y S
-d_t_sym = sp.sqrt((p_x_sym - S_x)**2 + (p_y_sym - S_y)**2)
+def p_y(t):
+    return y_t(t) + r * np.sin(2 * np.pi * t)
 
-# Convertimos la función simbólica de distancia a una función numérica
-d_t_func = sp.lambdify(t_sym, d_t_sym, 'numpy')
-
-# Función para calcular las coordenadas de T en la elipse
-def centro_elipse(t):
-    x_t = a * np.cos(2 * np.pi * t / 365 + np.pi / 2)
-    y_t = b * np.sin(2 * np.pi * t / 365 + np.pi / 2)
-    return x_t, y_t
-
-# Función para calcular las coordenadas de P en la circunferencia alrededor de T
-def punto_circunferencia(t):
-    x_t, y_t = centro_elipse(t)
-    x_p = x_t + r * np.cos(2 * np.pi * t)
-    y_p = y_t + r * np.sin(2 * np.pi * t)
-    return x_p, y_p
+# Función de distancia entre P(t) y S
+def distancia(t):
+    return np.sqrt((p_x(t) - S_x)**2 + (p_y(t) - S_y)**2)
 
 # Función para graficar la trayectoria de T y P, y marcar el punto S
-def graficar_trayectoria(t=0):
-    x_t, y_t = centro_elipse(t)
-    x_p, y_p = punto_circunferencia(t)
+def graficar_trayectoria(t):
+    x_t_val = x_t(t)
+    y_t_val = y_t(t)
+    x_p_val = p_x(t)
+    y_p_val = p_y(t)
 
     plt.figure(figsize=(8, 8))
-    t_vals = np.linspace(0, 365, 200)  # Reducción de puntos
-    x_vals, y_vals = centro_elipse(t_vals)
-    plt.plot(x_vals, y_vals, 'b-', label='Trayectoria de T (Elipse)', linewidth=2)  # Línea sólida
-    plt.plot(x_t, y_t, 'bo', label=f'Punto T en t={t}', markersize=8)  # Mayor tamaño para T
+    
+    # Trayectoria de T
+    t_vals = np.linspace(0, 365, 1000)
+    plt.plot(x_t(t_vals), y_t(t_vals), 'b--', label='Trayectoria de T (Elipse)')
+    
+    # Punto T en la elipse
+    plt.plot(x_t_val, y_t_val, 'bo', label=f'Punto T en t={t}')
+    
+    # Circunferencia alrededor de T
     theta_vals = np.linspace(0, 2 * np.pi, 100)
-    x_circ = x_t + r * np.cos(theta_vals)
-    y_circ = y_t + r * np.sin(theta_vals)
-    plt.plot(x_circ, y_circ, 'g-', label='Circunferencia alrededor de T', linewidth=2)
-    plt.plot(x_p, y_p, 'ro', label=f'Punto P en t={t}', markersize=8)  # Mayor tamaño para P
+    plt.plot(x_t_val + r * np.cos(theta_vals), y_t_val + r * np.sin(theta_vals), 'g-', label='Circunferencia alrededor de T')
     
-    # Marcamos el punto S en el gráfico
+    # Punto P en la circunferencia
+    plt.plot(x_p_val, y_p_val, 'ro', label=f'Punto P en t={t}')
+    
+    # Marcamos el punto S
     plt.plot(S_x, S_y, 'ms', label='Punto S', markersize=8)
-    
+
     # Configuración del gráfico
     plt.xlabel('X')
     plt.ylabel('Y')
@@ -70,50 +66,55 @@ def graficar_trayectoria(t=0):
     st.pyplot(plt.gcf())
     plt.clf()
 
-# Función para graficar la distancia entre P y S
-def graficar_distancia():
-    t_vals = np.linspace(0, 365, 500)  # Usar más puntos para suavizar
-    d_vals = d_t_func(t_vals)
-
-    # Encontrar máximos y mínimos
-    d_min = np.min(d_vals)
-    t_min = t_vals[np.argmin(d_vals)]
-    d_max = np.max(d_vals)
-    t_max = t_vals[np.argmax(d_vals)]
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(t_vals, d_vals, label='Distancia d(t)', color='blue', linewidth=2)  # Línea más gruesa
-    plt.title('Función de distancia d(t) entre P y S', fontsize=16)
-    plt.xlabel('Tiempo t (días)', fontsize=14)
-    plt.ylabel('Distancia d(t)', fontsize=14)
-
-    # Anotar mínimos y máximos
-    plt.annotate(f'Mínimo: d={d_min:.2f}\n en t={t_min:.2f}', xy=(t_min, d_min), 
-                 xytext=(t_min + 10, d_min + 50),
-                 arrowprops=dict(facecolor='red', arrowstyle='->'), fontsize=10, color='red')
-    plt.annotate(f'Máximo: d={d_max:.2f}\n en t={t_max:.2f}', xy=(t_max, d_max), 
-                 xytext=(t_max + 10, d_max + 50),
-                 arrowprops=dict(facecolor='green', arrowstyle='->'), fontsize=10, color='green')
-
-    plt.grid(False)  # Desactivar cuadrícula
-    plt.legend(fontsize=12)
-    st.pyplot(plt.gcf())
-    plt.clf()
-
-# Función para calcular la distancia actual entre P y S
-def calcular_distancia_actual(t):
-    return d_t_func(t)
-
 # Interfaz de Streamlit
 st.title("Visualización de la trayectoria de T y P y distancia d(t) entre P y S")
 
 # Slider para el parámetro t en la trayectoria de T y P
 t = st.slider("Valor de t (días)", min_value=0, max_value=365, step=1, value=0)
+
+# Graficar la trayectoria
 graficar_trayectoria(t)
 
-# Calculamos la distancia actual y la mostramos como métrica
-distancia_actual = calcular_distancia_actual(t)
+# Calcular la distancia actual y mostrarla como métrica
+distancia_actual = distancia(t)
 st.metric(label="Distancia d(t) entre P y S", value=f"{distancia_actual:.2f} unidades")
 
-if st.button("Mostrar gráfico de distancia d(t) entre P y S"):
-    graficar_distancia()
+# Vector de tiempo para el gráfico de distancia
+t_vals = np.linspace(0, 365, 1000)
+d_vals = distancia(t_vals)
+
+# Graficamos la función de distancia
+plt.figure(figsize=(10, 6))
+plt.plot(t_vals, d_vals, label='Distancia d(t)', color='blue', linewidth=2)
+plt.title('Función de distancia d(t) entre P y S', fontsize=16)
+plt.xlabel('Tiempo t (días)', fontsize=14)
+plt.ylabel('Distancia d(t)', fontsize=14)
+plt.grid(True)
+
+# Encontramos los puntos de mínimo y máximo
+min_result = minimize_scalar(distancia, bounds=(0, 365), method='bounded')
+max_result = minimize_scalar(lambda t: -distancia(t), bounds=(0, 365), method='bounded')
+
+# Resultados de mínimo y máximo
+t_min = min_result.x
+d_min = min_result.fun
+t_max = max_result.x
+d_max = -max_result.fun  # Tomamos el valor negativo porque optimizamos la función -d(t)
+
+# Marcamos los puntos mínimo y máximo en la gráfica
+plt.scatter([t_min], [d_min], color='red', label=f'Mínimo en t={t_min:.2f}, d={d_min:.2f}', zorder=5)
+plt.scatter([t_max], [d_max], color='green', label=f'Máximo en t={t_max:.2f}, d={d_max:.2f}', zorder=5)
+
+# Anotaciones para los puntos
+plt.annotate(f'Mínimo: d={d_min:.2f}', xy=(t_min, d_min), xytext=(t_min + 10, d_min + 50),
+             arrowprops=dict(facecolor='red', arrowstyle='->'), fontsize=10, color='red')
+plt.annotate(f'Máximo: d={d_max:.2f}', xy=(t_max, d_max), xytext=(t_max + 10, d_max + 50),
+             arrowprops=dict(facecolor='green', arrowstyle='->'), fontsize=10, color='green')
+
+plt.legend()
+st.pyplot(plt.gcf())
+plt.clf()
+
+# Imprimimos los resultados numéricos
+st.write(f"Distancia mínima en t = {t_min:.2f} días, d = {d_min:.2f}")
+st.write(f"Distancia máxima en t = {t_max:.2f} días, d = {d_max:.2f}")
