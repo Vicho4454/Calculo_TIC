@@ -31,27 +31,43 @@ S_x, S_y = -1600, 0
 def distancia(t):
     return np.sqrt((p_x(t) - S_x)**2 + (p_y(t) - S_y)**2)
 # Función para graficar la trayectoria de T y P, y marcar el punto S
-def graficar_trayectoria(t):
-    x_t_val = x_t(t)
-    y_t_val = y_t(t)
-    x_p_val = p_x(t)
-    y_p_val = p_y(t)
 
+def centro_elipse(t):
+    x_t = a * np.cos(2 * np.pi * t / 365 + np.pi / 2)
+    y_t = b * np.sin(2 * np.pi * t / 365 + np.pi / 2)
+    return x_t, y_t
+
+# Función para calcular las coordenadas del punto P en la circunferencia alrededor de T, con 365 vueltas
+def punto_circunferencia(t):
+    x_t, y_t = centro_elipse(t)
+    x_p = x_t + r * np.cos(2 * np.pi * t)
+    y_p = y_t + r * np.sin(2 * np.pi * t)
+    return x_p, y_p
+def graficar_trayectoria(t):
+
+    # Obtener coordenadas del centro T y del punto P
+    x_t, y_t = centro_elipse(t)
+    x_p, y_p = punto_circunferencia(t)
+
+    # Crear la figura
     plt.figure(figsize=(8, 8))
-    
-    # Trayectoria de T
+
+    # Dibujar la trayectoria elíptica de T
     t_vals = np.linspace(0, 365, 1000)
-    plt.plot(x_t(t_vals), y_t(t_vals), 'b--', label='Trayectoria de T (Elipse)')
-    
-    # Punto T en la elipse
-    plt.plot(x_t_val, y_t_val, 'bo', label=f'Punto T en t={t}')
-    
-    # Circunferencia alrededor de T
+    x_vals, y_vals = centro_elipse(t_vals)
+    plt.plot(x_vals, y_vals, 'b--', label='Trayectoria de T (Elipse)')
+
+    # Dibujar el punto T en la elipse
+    plt.plot(x_t, y_t, 'bo', label=f'Punto T en t={t}')
+
+    # Dibujar la circunferencia alrededor de T
     theta_vals = np.linspace(0, 2 * np.pi, 100)
-    plt.plot(x_t_val + r * np.cos(theta_vals), y_t_val + r * np.sin(theta_vals), 'g-', label='Circunferencia alrededor de T')
-    
-    # Punto P en la circunferencia
-    plt.plot(x_p_val, y_p_val, 'ro', label=f'Punto P en t={t}')
+    x_circ = x_t + r * np.cos(theta_vals)
+    y_circ = y_t + r * np.sin(theta_vals)
+    plt.plot(x_circ, y_circ, 'g-', label='Circunferencia alrededor de T')
+
+    # Dibujar el punto P en la circunferencia
+    plt.plot(x_p, y_p, 'ro', label=f'Punto P en t={t}')
     
     # Marcamos el punto S
     plt.plot(S_x, S_y, 'ms', label='Punto S', markersize=8)
