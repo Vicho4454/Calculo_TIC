@@ -133,5 +133,6 @@ st.write(f"Distancia máxima en t = {t_max:.2f} días, d = {d_max:.2f}")
 logo_uss = 'logo_uss.png'
 st.logo(
     logo_uss,
+    size = 'medium',
 )
 
