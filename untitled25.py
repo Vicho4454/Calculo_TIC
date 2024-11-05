@@ -9,7 +9,7 @@ a = 2000  # Semieje mayor de la elipse
 b = 1200  # Semieje menor de la elipse
 r = 300   # Radio de la circunferencia
 
-
+st.logo('logo_uss', size="medium", link=None, icon_image=None)
 # Definimos las funciones de las coordenadas de T
 def x_t(t):
     return 2000 * np.cos((2 * np.pi * t / 365) + (np.pi / 2))
@@ -130,4 +130,4 @@ plt.clf()
 # Imprimimos los resultados numéricos
 st.write(f"Distancia mínima en t = {t_min:.2f} días, d = {d_min:.2f}")
 st.write(f"Distancia máxima en t = {t_max:.2f} días, d = {d_max:.2f}")
-st.logo(logo_uss, size="medium", link=None, icon_image=None)
+
