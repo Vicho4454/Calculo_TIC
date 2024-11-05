@@ -85,7 +85,7 @@ d_vals = distancia(t_vals)
 
 # Graficamos la función de distancia
 plt.figure(figsize=(10, 6))
-plt.plot(t_vals, d_vals, label='Distancia d(t)', color='blue', linewidth=2)
+plt.plot(t_vals, d_vals, label='Distancia d(t)', color='blue')
 plt.title('Función de distancia d(t) entre P y S', fontsize=16)
 plt.xlabel('Tiempo t (días)', fontsize=14)
 plt.ylabel('Distancia d(t)', fontsize=14)
@@ -102,14 +102,8 @@ t_max = max_result.x
 d_max = -max_result.fun  # Tomamos el valor negativo porque optimizamos la función -d(t)
 
 # Marcamos los puntos mínimo y máximo en la gráfica
-plt.scatter([t_min], [d_min], color='red', label=f'Mínimo en t={t_min:.2f}, d={d_min:.2f}', zorder=5)
-plt.scatter([t_max], [d_max], color='green', label=f'Máximo en t={t_max:.2f}, d={d_max:.2f}', zorder=5)
-
-# Anotaciones para los puntos
-plt.annotate(f'Mínimo: d={d_min:.2f}', xy=(t_min, d_min), xytext=(t_min + 10, d_min + 50),
-             arrowprops=dict(facecolor='red', arrowstyle='->'), fontsize=10, color='red')
-plt.annotate(f'Máximo: d={d_max:.2f}', xy=(t_max, d_max), xytext=(t_max + 10, d_max + 50),
-             arrowprops=dict(facecolor='green', arrowstyle='->'), fontsize=10, color='green')
+plt.scatter([t_min], [d_min], color='red', label=f'Mínimo en t={t_min:.2f}, d={d_min:.2f}')
+plt.scatter([t_max], [d_max], color='green', label=f'Máximo en t={t_max:.2f}, d={d_max:.2f}')
 
 plt.legend()
 st.pyplot(plt.gcf())
