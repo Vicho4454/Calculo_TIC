@@ -13,7 +13,7 @@ S_x, S_y = -1600, 0  # Coordenadas del punto S
 t_sym = sp.symbols('t')
 
 # Definimos las funciones de las coordenadas de T en forma simbólica
-x_t_sym = a * sp.cos((2 * sp.pi * t_sym / 365) + (np.pi / 2))
+x_t_sym = a * sp.cos((2 * np.pi * t_sym / 365) + (np.pi / 2))
 y_t_sym = b * sp.sin((2 * np.pi * t_sym / 365) + (np.pi / 2))
 
 # Coordenadas de P en función de t
@@ -72,28 +72,30 @@ def graficar_trayectoria(t=0):
 
 # Función para graficar la distancia entre P y S
 def graficar_distancia():
-    t_vals = np.linspace(0, 365, 500)  # Reducción de puntos para un gráfico más limpio
+    t_vals = np.linspace(0, 365, 500)  # Usar más puntos para suavizar
     d_vals = d_t_func(t_vals)
 
     # Encontrar máximos y mínimos
-    t_min = t_vals[np.argmin(d_vals)]
     d_min = np.min(d_vals)
-    t_max = t_vals[np.argmax(d_vals)]
+    t_min = t_vals[np.argmin(d_vals)]
     d_max = np.max(d_vals)
+    t_max = t_vals[np.argmax(d_vals)]
 
     plt.figure(figsize=(10, 6))
     plt.plot(t_vals, d_vals, label='Distancia d(t)', color='blue', linewidth=2)  # Línea más gruesa
     plt.title('Función de distancia d(t) entre P y S', fontsize=16)
     plt.xlabel('Tiempo t (días)', fontsize=14)
     plt.ylabel('Distancia d(t)', fontsize=14)
-    plt.grid(False)  # Desactivar cuadrícula
 
     # Anotar mínimos y máximos
-    plt.annotate(f'Mínimo: d={d_min:.2f} en t={t_min:.2f}', xy=(t_min, d_min), xytext=(t_min + 10, d_min + 50),
+    plt.annotate(f'Mínimo: d={d_min:.2f}\n en t={t_min:.2f}', xy=(t_min, d_min), 
+                 xytext=(t_min + 10, d_min + 50),
                  arrowprops=dict(facecolor='red', arrowstyle='->'), fontsize=10, color='red')
-    plt.annotate(f'Máximo: d={d_max:.2f} en t={t_max:.2f}', xy=(t_max, d_max), xytext=(t_max + 10, d_max + 50),
+    plt.annotate(f'Máximo: d={d_max:.2f}\n en t={t_max:.2f}', xy=(t_max, d_max), 
+                 xytext=(t_max + 10, d_max + 50),
                  arrowprops=dict(facecolor='green', arrowstyle='->'), fontsize=10, color='green')
 
+    plt.grid(False)  # Desactivar cuadrícula
     plt.legend(fontsize=12)
     st.pyplot(plt.gcf())
     plt.clf()
