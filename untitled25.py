@@ -130,5 +130,9 @@ plt.clf()
 # Imprimimos los resultados numéricos
 st.write(f"Distancia mínima en t = {t_min:.2f} días, d = {d_min:.2f}")
 st.write(f"Distancia máxima en t = {t_max:.2f} días, d = {d_max:.2f}")
-st.logo('logo_uss')
+st.logo(
+    LOGO_URL_LARGE,
+    link="https://imgur.com/a/9lwekqa",
+    icon_image=LOGO_URL_SMALL,
+)
 
