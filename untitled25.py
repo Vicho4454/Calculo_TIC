@@ -8,26 +8,28 @@ from scipy.optimize import minimize_scalar
 a = 2000  # Semieje mayor de la elipse
 b = 1200  # Semieje menor de la elipse
 r = 300   # Radio de la circunferencia
-S_x, S_y = -1600, 0  # Coordenadas del punto S
+
 
 # Definimos las funciones de las coordenadas de T
 def x_t(t):
-    return a * np.cos((2 * np.pi * t / 365) + (np.pi / 2))
+    return 2000 * np.cos((2 * np.pi * t / 365) + (np.pi / 2))
 
 def y_t(t):
-    return b * np.sin((2 * np.pi * t / 365) + (np.pi / 2))
+    return 1200 * np.sin((2 * np.pi * t / 365) + (np.pi / 2))
 
 # Funciones de las coordenadas de P
 def p_x(t):
-    return x_t(t) + r * np.cos(2 * np.pi * t)
+    return x_t(t) + np.cos(2 * np.pi * t)
 
 def p_y(t):
-    return y_t(t) + r * np.sin(2 * np.pi * t)
+    return y_t(t) + np.sin(2 * np.pi * t)
+
+# Punto S
+S_x, S_y = -1600, 0
 
 # Función de distancia entre P(t) y S
 def distancia(t):
     return np.sqrt((p_x(t) - S_x)**2 + (p_y(t) - S_y)**2)
-
 # Función para graficar la trayectoria de T y P, y marcar el punto S
 def graficar_trayectoria(t):
     x_t_val = x_t(t)
