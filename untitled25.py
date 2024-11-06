@@ -96,10 +96,27 @@ graficar_trayectoria(t)
 # Calcular la distancia actual y mostrarla como métrica
 distancia_actual = distancia(t)
 st.metric(label="Distancia d(t) entre P y S", value=f"{distancia_actual:.2f} unidades")
+#########################################################
+
+t = sp.symbols('t')
+
+# Definimos las funciones de las coordenadas de T
+x_t = 2000 * sp.cos((2 * sp.pi * t / 365) + (sp.pi / 2))
+y_t = 1200 * sp.sin((2 * sp.pi * t / 365) + (sp.pi / 2))
+
+# Definimos las coordenadas de P
+p_x = x_t + sp.cos(2 * sp.pi * t)
+p_y = y_t + sp.sin(2 * sp.pi * t)
+
+# Coordenadas de S
+S_x, S_y = -1600, 0
+
 
 # Vector de tiempo para el gráfico de distancia
+d_t = d_t = sp.sqrt((p_x - S_x)**2 + (p_y - S_y)**2)
+d_t_func = sp.lambdify(t, d_t, 'numpy')
 t_vals = np.linspace(0, 365, 1000)
-d_vals = distancia(t_vals)
+d_vals = d_t_func(t_vals)
 
 # Graficamos la función de distancia
 plt.figure(figsize=(10, 6))
@@ -110,14 +127,14 @@ plt.ylabel('Distancia d(t)', fontsize=14)
 plt.grid(True)
 
 # Encontramos los puntos de mínimo y máximo
-min_result = minimize_scalar(distancia, bounds=(0, 365), method='bounded')
-max_result = minimize_scalar(lambda t: -distancia(t), bounds=(0, 365), method='bounded')
+t_vals = np.linspace(0, 365, 1000)
+d_vals = d_t_func(t_vals)
 
 # Resultados de mínimo y máximo
-t_min = min_result.x
-d_min = min_result.fun
-t_max = max_result.x
-d_max = -max_result.fun  # Tomamos el valor negativo porque optimizamos la función -d(t)
+t_min = t_vals[np.argmin(d_vals)]
+d_min = np.min(d_vals)
+t_max = t_vals[np.argmax(d_vals)]
+d_max = np.max(d_vals)  # Tomamos el valor negativo porque optimizamos la función -d(t)
 
 # Marcamos los puntos mínimo y máximo en la gráfica
 plt.scatter([t_min], [d_min], color='red', label=f'Mínimo en t={t_min:.2f}, d={d_min:.2f}')
